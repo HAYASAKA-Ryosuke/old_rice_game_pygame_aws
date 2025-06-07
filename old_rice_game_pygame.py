@@ -143,24 +143,13 @@ class OldRiceGame:
         # Score
         self.draw_text(f"あなたのスコア: {self.score:.1f}秒", self.large_font, BLACK, SCREEN_WIDTH//2, 220, "center")
         
-        # Message
-        message = [
-            "市場の米不足を解消するのにかかった時間です。",
-            "より長い時間を記録できるよう、効率的に古米を放出しましょう！"
-        ]
-        
-        y_pos = 280
-        for line in message:
-            self.draw_text(line, self.medium_font, BLACK, SCREEN_WIDTH//2, y_pos, "center")
-            y_pos += 40
-        
         # Restart prompt
-        pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - 150, 400, 300, 50), border_radius=10)
-        self.draw_text("Enterキーでもう一度プレイ", self.medium_font, WHITE, SCREEN_WIDTH//2, 425, "center")
+        pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - 150, 320, 300, 50), border_radius=10)
+        self.draw_text("Enterキーでもう一度プレイ", self.medium_font, WHITE, SCREEN_WIDTH//2, 345, "center")
         
         # Quit prompt
-        pygame.draw.rect(self.screen, RED, (SCREEN_WIDTH//2 - 150, 470, 300, 50), border_radius=10)
-        self.draw_text("Escキーで終了", self.medium_font, WHITE, SCREEN_WIDTH//2, 495, "center")
+        pygame.draw.rect(self.screen, RED, (SCREEN_WIDTH//2 - 150, 390, 300, 50), border_radius=10)
+        self.draw_text("Escキーで終了", self.medium_font, WHITE, SCREEN_WIDTH//2, 415, "center")
         
         pygame.display.flip()
 
