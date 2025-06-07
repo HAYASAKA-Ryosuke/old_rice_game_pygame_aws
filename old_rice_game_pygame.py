@@ -28,6 +28,9 @@ class OldRiceGame:
         # Game state
         self.current_sequence = ""
         self.target_sequence = ""
+        self.target_sequences = []
+        self.current_target_index = 0
+        self.full_target_string = ""  # The full continuous string of all sequences
         self.inventory = deque()  # Store sets of rice
         self.game_running = False
         self.game_state = "intro"  # intro, playing, game_over
@@ -53,10 +56,31 @@ class OldRiceGame:
         self.generate_target_sequence()
 
     def generate_target_sequence(self):
-        """Generate a random target sequence"""
-        # Generate a sequence with 1-5 "古" followed by "米"
+        """Generate a continuous string of multiple sequences"""
+        # Generate sequences until we have at least 20 characters
+        self.target_sequences = []
+        self.full_target_string = ""
+        
+        while len(self.full_target_string) < 20:
+            # Generate a sequence with 1-5 "古" followed by "米"
+            num_old = random.randint(1, 5)
+            sequence = "古" * num_old + "米"
+            self.target_sequences.append(sequence)
+            self.full_target_string += sequence
+        
+        # Set the current target to the first sequence
+        self.current_target_index = 0
+        self.target_sequence = self.target_sequences[self.current_target_index]
+        
+    def add_new_sequence(self):
+        """Add a new sequence to maintain at least 20 characters"""
+        # Generate a new sequence
         num_old = random.randint(1, 5)
-        self.target_sequence = "古" * num_old + "米"
+        sequence = "古" * num_old + "米"
+        
+        # Add to our lists
+        self.target_sequences.append(sequence)
+        self.full_target_string += sequence
 
     def draw_text(self, text, font, color, x, y, align="left"):
         """Draw text on screen with alignment options"""
@@ -85,7 +109,7 @@ class OldRiceGame:
         
         # Simple instructions (3 lines)
         instructions = [
-            "f/jキーで「古米」を入力し市場の米不足を解消せよ！",
+            "連続した「古米」文字列を順番に入力し市場の米不足を解消せよ！",
             "ミスすると消化速度が2倍になり、在庫が早く減る！",
             "在庫が長く持つほど高得点！"
         ]
@@ -142,9 +166,16 @@ class OldRiceGame:
         # Display time
         self.draw_text(f"経過時間: {self.elapsed_time:.1f}秒", self.medium_font, BLACK, 20, 20)
         
-        # Display target sequence
+        # Display the full target string with the current sequence highlighted
         self.draw_text("目標:", self.medium_font, BLACK, 20, 60)
-        target_rect = self.draw_text(self.target_sequence, self.large_font, BLUE, 100, 55)
+        
+        # Display the full target string
+        if self.full_target_string:
+            # Draw the full string in gray
+            self.draw_text(self.full_target_string, self.large_font, (100, 100, 100), 100, 55)
+            
+            # Draw the current target in blue (overlay on top of the gray text)
+            self.draw_text(self.target_sequence, self.large_font, BLUE, 100, 55)
         
         # Display current sequence
         self.draw_text("入力:", self.medium_font, BLACK, 20, 100)
@@ -184,6 +215,10 @@ class OldRiceGame:
         boost_text = f"消化速度: {self.consumption_boost:.1f}倍"
         boost_color = RED if self.consumption_boost > 1.0 else BLACK
         self.draw_text(boost_text, self.medium_font, boost_color, SCREEN_WIDTH - 20, 20, "right")
+        
+        # Display progress through sequences
+        progress_text = f"進捗: {self.current_target_index + 1}/{len(self.target_sequences)}"
+        self.draw_text(progress_text, self.medium_font, BLACK, SCREEN_WIDTH - 20, 50, "right")
         
         # Display inventory count
         self.draw_text(f"在庫セット数: {len(self.inventory)}", self.medium_font, BLACK, 20, 200)
@@ -291,9 +326,26 @@ class OldRiceGame:
                 # Add to inventory
                 self.inventory.append((self.current_sequence, len(self.current_sequence)))
                 
-                # Reset current sequence and generate new target
+                # Remove the completed sequence from the full target string
+                self.full_target_string = self.full_target_string[len(self.target_sequence):]
+                
+                # Move to next target sequence
+                self.current_target_index += 1
+                
+                # Check if we need to add more sequences to maintain 20 characters
+                while len(self.full_target_string) < 20:
+                    self.add_new_sequence()
+                
+                # Set the next target sequence
+                if self.current_target_index < len(self.target_sequences):
+                    self.target_sequence = self.target_sequences[self.current_target_index]
+                else:
+                    # This shouldn't happen with the while loop above, but just in case
+                    self.add_new_sequence()
+                    self.target_sequence = self.target_sequences[self.current_target_index]
+                
+                # Reset current sequence
                 self.current_sequence = ""
-                self.generate_target_sequence()
             
             return True
             
@@ -365,6 +417,10 @@ class OldRiceGame:
                     self.game_state = "game_over"
                     self.game_running = False
                     self.score = self.elapsed_time
+                
+                # Check if we need to generate new sequences
+                if not self.full_target_string and self.current_target_index >= len(self.target_sequences):
+                    self.generate_target_sequence()
                 
                 # Update display
                 self.update_game_display()
