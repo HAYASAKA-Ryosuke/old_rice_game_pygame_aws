@@ -109,6 +109,19 @@ class OldRiceGame:
         self.draw_text("古米マーケット", self.title_font, DARK_BROWN, SCREEN_WIDTH//2, 100, "center")
         self.draw_text("Old Rice Market", self.large_font, DARK_BROWN, SCREEN_WIDTH//2, 150, "center")
         
+        # Key instructions
+        key_instructions = [
+            "【操作方法】",
+            "「f」キー: 「古」を入力",
+            "「j」キー: 「米」を入力",
+            "「Backspace」キー: 入力を削除"
+        ]
+        
+        y_pos = 210
+        for line in key_instructions:
+            self.draw_text(line, self.medium_font, BLACK, SCREEN_WIDTH//2, y_pos, "center")
+            y_pos += 30
+        
         # Simple instructions (3 lines)
         instructions = [
             "古米を入力し米不足を解消せよ！",
@@ -116,14 +129,14 @@ class OldRiceGame:
             "在庫を長く維持するほど高得点！"
         ]
         
-        y_pos = 250
+        y_pos = 330
         for line in instructions:
             self.draw_text(line, self.large_font, BLACK, SCREEN_WIDTH//2, y_pos, "center")
             y_pos += 50
         
         # Start prompt
-        pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - 150, 450, 300, 50), border_radius=10)
-        self.draw_text("Enterキーを押してスタート", self.medium_font, WHITE, SCREEN_WIDTH//2, 475, "center")
+        pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - 150, 500, 300, 50), border_radius=10)
+        self.draw_text("Enterキーを押してスタート", self.medium_font, WHITE, SCREEN_WIDTH//2, 525, "center")
         
         pygame.display.flip()
 
