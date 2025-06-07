@@ -133,8 +133,9 @@ class OldRiceGame:
             self.draw_text(line, self.large_font, BLACK, SCREEN_WIDTH//2, y_pos, "center")
             y_pos += 50
         
-        # Start prompt
-        pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - 150, 500, 300, 50), border_radius=10)
+        # Start prompt - make button wider to fit text
+        button_width = 350
+        pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - button_width//2, 500, button_width, 50), border_radius=10)
         self.draw_text("Enterキーを押してスタート", self.medium_font, WHITE, SCREEN_WIDTH//2, 525, "center")
         
         pygame.display.flip()
@@ -155,12 +156,13 @@ class OldRiceGame:
         # Score - changed from "スコア" to "維持時間"
         self.draw_text(f"維持時間: {self.score:.1f}秒", self.large_font, BLACK, SCREEN_WIDTH//2, 220, "center")
         
-        # Restart prompt
-        pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - 150, 320, 300, 50), border_radius=10)
+        # Restart prompt - make button wider to fit text
+        button_width = 350
+        pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - button_width//2, 320, button_width, 50), border_radius=10)
         self.draw_text("Enterキーでもう一度プレイ", self.medium_font, WHITE, SCREEN_WIDTH//2, 345, "center")
         
         # Quit prompt
-        pygame.draw.rect(self.screen, RED, (SCREEN_WIDTH//2 - 150, 390, 300, 50), border_radius=10)
+        pygame.draw.rect(self.screen, RED, (SCREEN_WIDTH//2 - button_width//2, 390, button_width, 50), border_radius=10)
         self.draw_text("Escキーで終了", self.medium_font, WHITE, SCREEN_WIDTH//2, 415, "center")
         
         pygame.display.flip()
@@ -206,6 +208,16 @@ class OldRiceGame:
         # Display current sequence - also moved down
         self.draw_text("入力:", self.medium_font, BLACK, 20, 160)
         
+        # Calculate the width of the input area for proper error box sizing
+        input_width = 0
+        if self.current_sequence:
+            for char in self.current_sequence:
+                input_width += self.large_font.size(char)[0]
+            # Add some padding
+            input_width += 20
+        else:
+            input_width = 100  # Default width if no input
+        
         # Display current input with color coding
         x_pos = 100
         for i, char in enumerate(self.current_sequence):
@@ -224,27 +236,31 @@ class OldRiceGame:
         
         # Display error flash and penalty if active
         if self.error_flash > 0:
-            # Draw a red rectangle around the input area
-            pygame.draw.rect(self.screen, RED, (95, 155, 400, 40), 3)
+            # Draw a red rectangle around the input area - adjusted size based on content
+            pygame.draw.rect(self.screen, RED, (95, 155, max(input_width, 100), 40), 3)
             self.error_flash -= 1
             
-            # Show error message
-            self.draw_text("入力ミス! 最初からやり直してください", self.medium_font, RED, SCREEN_WIDTH//2, 200, "center")
+            # Show error message - moved down to avoid overlap with the red box
+            self.draw_text("入力ミス! 最初からやり直してください", self.medium_font, RED, SCREEN_WIDTH//2, 210, "center")
             
             # Show penalty countdown
             if self.error_penalty > 0:
                 seconds_left = self.error_penalty / 60  # Convert frames to seconds
-                self.draw_text(f"入力再開まで: {seconds_left:.1f}秒", self.medium_font, RED, SCREEN_WIDTH//2, 230, "center")
+                self.draw_text(f"入力再開まで: {seconds_left:.1f}秒", self.medium_font, RED, SCREEN_WIDTH//2, 240, "center")
                 self.error_penalty -= 1
+                
+                # Reset current sequence when penalty ends
+                if self.error_penalty == 1:  # Reset just before penalty ends
+                    self.current_sequence = ""
         
         # Display inventory count
-        self.draw_text(f"在庫セット数: {len(self.inventory)}", self.medium_font, BLACK, 20, 260)
+        self.draw_text(f"在庫セット数: {len(self.inventory)}", self.medium_font, BLACK, 20, 270)
         
         # Display inventory details
         if self.inventory:
-            self.draw_text("【在庫状況】", self.medium_font, BLACK, 20, 290)
+            self.draw_text("【在庫状況】", self.medium_font, BLACK, 20, 300)
             
-            y_pos = 330
+            y_pos = 340
             for i, (rice_set, remaining) in enumerate(self.inventory):
                 if y_pos > SCREEN_HEIGHT - 50:  # Prevent drawing outside screen
                     self.draw_text("...", self.medium_font, BLACK, 20, y_pos)
@@ -320,7 +336,8 @@ class OldRiceGame:
                 # Error - wrong key
                 self.error_flash = self.error_penalty_time  # Set error flash for entire penalty period
                 self.error_penalty = self.error_penalty_time  # Set penalty timer
-                self.current_sequence = ""  # Reset input on error
+                # Keep the current sequence visible during the error period
+                # It will be reset when the penalty ends
                 
                 # Increase consumption speed as penalty - now +1.0 (doubling) per error
                 self.consumption_boost += 1.0  # Increase by 100%
@@ -347,7 +364,8 @@ class OldRiceGame:
                 # Error - wrong key
                 self.error_flash = self.error_penalty_time  # Set error flash for entire penalty period
                 self.error_penalty = self.error_penalty_time  # Set penalty timer
-                self.current_sequence = ""  # Reset input on error
+                # Keep the current sequence visible during the error period
+                # It will be reset when the penalty ends
                 
                 # Increase consumption speed as penalty - now +1.0 (doubling) per error
                 self.consumption_boost += 1.0  # Increase by 100%
