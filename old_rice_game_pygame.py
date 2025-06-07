@@ -420,6 +420,8 @@ class OldRiceGame:
                             self.inventory.clear()
                             self.consumption_boost = 1.0  # Reset consumption boost
                             self.error_count = 0  # Reset error count
+                            self.error_flash = 0  # Reset error flash
+                            self.error_penalty = 0  # Reset error penalty
                             self.generate_target_sequence()
                             
                             # Add an initial inventory item to prevent immediate game over
@@ -442,6 +444,8 @@ class OldRiceGame:
                             self.inventory.clear()
                             self.consumption_boost = 1.0  # Reset consumption boost
                             self.error_count = 0  # Reset error count
+                            self.error_flash = 0  # Reset error flash
+                            self.error_penalty = 0  # Reset error penalty
                             self.generate_target_sequence()
                             
                             # Add an initial inventory item to prevent immediate game over
