@@ -208,16 +208,6 @@ class OldRiceGame:
         # Display current sequence - also moved down
         self.draw_text("入力:", self.medium_font, BLACK, 20, 160)
         
-        # Calculate the width of the input area for proper error box sizing
-        input_width = 0
-        if self.current_sequence:
-            for char in self.current_sequence:
-                input_width += self.large_font.size(char)[0]
-            # Add some padding
-            input_width += 20
-        else:
-            input_width = 100  # Default width if no input
-        
         # Display current input with color coding
         x_pos = 100
         for i, char in enumerate(self.current_sequence):
@@ -236,11 +226,10 @@ class OldRiceGame:
         
         # Display error flash and penalty if active
         if self.error_flash > 0:
-            # Draw a red rectangle around the input area - adjusted size based on content
-            pygame.draw.rect(self.screen, RED, (95, 155, max(input_width, 100), 40), 3)
+            # No red rectangle anymore - removed as requested
             self.error_flash -= 1
             
-            # Show error message - moved down to avoid overlap with the red box
+            # Show error message - moved down to avoid overlap
             self.draw_text("入力ミス! 最初からやり直してください", self.medium_font, RED, SCREEN_WIDTH//2, 210, "center")
             
             # Show penalty countdown
