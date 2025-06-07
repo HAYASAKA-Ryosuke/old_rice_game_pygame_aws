@@ -42,6 +42,8 @@ class OldRiceGame:
         self.error_penalty = 0  # Counter for error penalty (in frames)
         self.error_penalty_time = 3 * 60  # 3 seconds at 60 FPS
         self.consumption_boost = 1.0  # Multiplier for consumption speed (increases on error)
+        self.error_count = 0  # Count of errors made
+        self.max_errors = 3  # Maximum allowed errors
         
         # Fonts
         self.title_font = pygame.font.SysFont('notosanscjkjp', 48)
@@ -109,8 +111,8 @@ class OldRiceGame:
         
         # Simple instructions (3 lines)
         instructions = [
-            "連続した「古米」文字列を順番に入力し市場の米不足を解消せよ！",
-            "ミスすると消化速度が2倍になり、在庫が早く減る！",
+            "古米を入力し米不足を解消せよ！",
+            "ミスは3回まで！消化速度が2倍に！",
             "在庫が長く持つほど高得点！"
         ]
         
@@ -132,8 +134,14 @@ class OldRiceGame:
         # Game over title
         self.draw_text("ゲーム終了！", self.title_font, DARK_BROWN, SCREEN_WIDTH//2, 100, "center")
         
+        # Show reason for game over
+        if self.error_count >= self.max_errors:
+            self.draw_text("ミス回数オーバー！", self.large_font, RED, SCREEN_WIDTH//2, 160, "center")
+        else:
+            self.draw_text("在庫切れ！", self.large_font, RED, SCREEN_WIDTH//2, 160, "center")
+        
         # Score
-        self.draw_text(f"あなたのスコア: {self.score:.1f}秒", self.large_font, BLACK, SCREEN_WIDTH//2, 200, "center")
+        self.draw_text(f"あなたのスコア: {self.score:.1f}秒", self.large_font, BLACK, SCREEN_WIDTH//2, 220, "center")
         
         # Message
         message = [
@@ -216,9 +224,14 @@ class OldRiceGame:
         boost_color = RED if self.consumption_boost > 1.0 else BLACK
         self.draw_text(boost_text, self.medium_font, boost_color, SCREEN_WIDTH - 20, 20, "right")
         
+        # Display error count
+        error_text = f"ミス: {self.error_count}/{self.max_errors}"
+        error_color = RED if self.error_count > 0 else BLACK
+        self.draw_text(error_text, self.medium_font, error_color, SCREEN_WIDTH - 20, 50, "right")
+        
         # Display progress through sequences
         progress_text = f"進捗: {self.current_target_index + 1}/{len(self.target_sequences)}"
-        self.draw_text(progress_text, self.medium_font, BLACK, SCREEN_WIDTH - 20, 50, "right")
+        self.draw_text(progress_text, self.medium_font, BLACK, SCREEN_WIDTH - 20, 80, "right")
         
         # Display inventory count
         self.draw_text(f"在庫セット数: {len(self.inventory)}", self.medium_font, BLACK, 20, 200)
@@ -302,6 +315,16 @@ class OldRiceGame:
                 # Increase consumption speed as penalty - now +1.0 (doubling) per error
                 self.consumption_boost += 1.0  # Increase by 100%
                 
+                # Increment error count
+                self.error_count += 1
+                
+                # Check if max errors reached
+                if self.error_count >= self.max_errors:
+                    # Game over due to too many errors
+                    self.game_state = "game_over"
+                    self.game_running = False
+                    self.score = self.elapsed_time
+                
                 return True
             
             return True
@@ -318,6 +341,16 @@ class OldRiceGame:
                 
                 # Increase consumption speed as penalty - now +1.0 (doubling) per error
                 self.consumption_boost += 1.0  # Increase by 100%
+                
+                # Increment error count
+                self.error_count += 1
+                
+                # Check if max errors reached
+                if self.error_count >= self.max_errors:
+                    # Game over due to too many errors
+                    self.game_state = "game_over"
+                    self.game_running = False
+                    self.score = self.elapsed_time
                 
                 return True
             
@@ -375,6 +408,7 @@ class OldRiceGame:
                             self.current_sequence = ""
                             self.inventory.clear()
                             self.consumption_boost = 1.0  # Reset consumption boost
+                            self.error_count = 0  # Reset error count
                             self.generate_target_sequence()
                             
                             # Add an initial inventory item to prevent immediate game over
@@ -396,6 +430,7 @@ class OldRiceGame:
                             self.current_sequence = ""
                             self.inventory.clear()
                             self.consumption_boost = 1.0  # Reset consumption boost
+                            self.error_count = 0  # Reset error count
                             self.generate_target_sequence()
                             
                             # Add an initial inventory item to prevent immediate game over
