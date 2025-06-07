@@ -113,7 +113,7 @@ class OldRiceGame:
         instructions = [
             "古米を入力し米不足を解消せよ！",
             "ミスは3回まで！消化速度が2倍に！",
-            "在庫が長く持つほど高得点！"
+            "在庫を長く維持するほど高得点！"
         ]
         
         y_pos = 250
@@ -140,8 +140,8 @@ class OldRiceGame:
         else:
             self.draw_text("在庫切れ！", self.large_font, RED, SCREEN_WIDTH//2, 160, "center")
         
-        # Score
-        self.draw_text(f"あなたのスコア: {self.score:.1f}秒", self.large_font, BLACK, SCREEN_WIDTH//2, 220, "center")
+        # Score - changed from "スコア" to "維持時間"
+        self.draw_text(f"維持時間: {self.score:.1f}秒", self.large_font, BLACK, SCREEN_WIDTH//2, 220, "center")
         
         # Restart prompt
         pygame.draw.rect(self.screen, GREEN, (SCREEN_WIDTH//2 - 150, 320, 300, 50), border_radius=10)
@@ -237,7 +237,7 @@ class OldRiceGame:
                 
                 # Highlight the currently consuming item
                 bg_color = None
-                if i == 0:  # First item is being consumed
+                if i == 0:  # First item is being consuming
                     # Draw a light highlight behind the first item
                     highlight_rect = pygame.Rect(15, y_pos - 5, 580, 35)
                     pygame.draw.rect(self.screen, (255, 240, 200), highlight_rect)
@@ -246,17 +246,23 @@ class OldRiceGame:
                 else:
                     item_x = 20
                 
-                # Draw set text
-                self.draw_text(f"{i+1}. {rice_set}", self.medium_font, BLACK, item_x, y_pos)
+                # Draw set text - moved to left side
+                set_text = f"{i+1}. {rice_set}"
+                self.draw_text(set_text, self.medium_font, BLACK, item_x, y_pos)
                 
-                # Draw progress bar
+                # Calculate width of the set text to position progress bar properly
+                set_text_width = self.medium_font.size(set_text)[0]
+                progress_bar_start = max(item_x + set_text_width + 20, 250)  # Add padding
+                
+                # Draw progress bar - adjusted position
                 progress = remaining / len(rice_set)
-                bar_width = 300
-                pygame.draw.rect(self.screen, GRAY, (250, y_pos + 5, bar_width, 20))
-                pygame.draw.rect(self.screen, GREEN, (250, y_pos + 5, int(bar_width * progress), 20))
+                bar_width = 250
+                pygame.draw.rect(self.screen, GRAY, (progress_bar_start, y_pos + 5, bar_width, 20))
+                pygame.draw.rect(self.screen, GREEN, (progress_bar_start, y_pos + 5, int(bar_width * progress), 20))
                 
-                # Draw remaining text
-                self.draw_text(f"{remaining:.1f}/{len(rice_set)}", self.small_font, BLACK, 560, y_pos + 5)
+                # Draw remaining text - adjusted position
+                self.draw_text(f"{remaining:.1f}/{len(rice_set)}", self.small_font, BLACK, 
+                               progress_bar_start + bar_width + 10, y_pos + 5)
                 
                 y_pos += 40
         
@@ -436,8 +442,8 @@ class OldRiceGame:
                 # Update inventory consumption
                 inventory_changed = self.consume_inventory()
                 
-                # Check if game is over - but only after some time has passed
-                if not self.inventory and self.elapsed_time > 3.0:  # Give more time at the start
+                # Check if game is over - immediately end if inventory is empty
+                if not self.inventory:
                     self.game_state = "game_over"
                     self.game_running = False
                     self.score = self.elapsed_time
