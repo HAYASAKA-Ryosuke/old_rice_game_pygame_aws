@@ -113,8 +113,7 @@ class OldRiceGame:
         key_instructions = [
             "【操作方法】",
             "「f」キー: 「古」を入力",
-            "「j」キー: 「米」を入力",
-            "「Backspace」キー: 入力を削除"
+            "「j」キー: 「米」を入力"
         ]
         
         y_pos = 210
@@ -189,6 +188,9 @@ class OldRiceGame:
         # Display progress through sequences
         progress_text = f"進捗: {self.current_target_index + 1}/{len(self.target_sequences)}"
         self.draw_text(progress_text, self.medium_font, BLACK, SCREEN_WIDTH - 20, 80, "right")
+        
+        # Display key instructions
+        self.draw_text("f:「古」 j:「米」", self.small_font, DARK_BROWN, SCREEN_WIDTH//2, 20, "center")
         
         # Display the full target string with the current sequence highlighted - moved much lower
         self.draw_text("目標:", self.medium_font, BLACK, 20, 120)
@@ -388,12 +390,6 @@ class OldRiceGame:
                 # Reset current sequence
                 self.current_sequence = ""
             
-            return True
-            
-        # Add backspace to delete characters
-        elif key == pygame.K_BACKSPACE:
-            if self.current_sequence:
-                self.current_sequence = self.current_sequence[:-1]
             return True
         
         return False
