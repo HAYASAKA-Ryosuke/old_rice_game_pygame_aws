@@ -174,51 +174,6 @@ class OldRiceGame:
         # Display time
         self.draw_text(f"経過時間: {self.elapsed_time:.1f}秒", self.medium_font, BLACK, 20, 20)
         
-        # Display the full target string with the current sequence highlighted
-        self.draw_text("目標:", self.medium_font, BLACK, 20, 60)
-        
-        # Display the full target string
-        if self.full_target_string:
-            # Draw the full string in gray
-            self.draw_text(self.full_target_string, self.large_font, (100, 100, 100), 100, 55)
-            
-            # Draw the current target in blue (overlay on top of the gray text)
-            self.draw_text(self.target_sequence, self.large_font, BLUE, 100, 55)
-        
-        # Display current sequence
-        self.draw_text("入力:", self.medium_font, BLACK, 20, 100)
-        
-        # Display current input with color coding
-        x_pos = 100
-        for i, char in enumerate(self.current_sequence):
-            if i < len(self.target_sequence) and char == self.target_sequence[i]:
-                color = GREEN
-            else:
-                color = RED
-            char_rect = self.draw_text(char, self.large_font, color, x_pos, 95)
-            x_pos = char_rect.right
-        
-        # Add visual indicator for next expected character
-        if len(self.current_sequence) < len(self.target_sequence) and self.error_penalty == 0:
-            next_char = self.target_sequence[len(self.current_sequence)]
-            # Make the hint more transparent
-            self.draw_text(next_char, self.large_font, (100, 100, 100, 128), x_pos, 95)  # Semi-transparent hint
-        
-        # Display error flash and penalty if active
-        if self.error_flash > 0:
-            # Draw a red rectangle around the input area
-            pygame.draw.rect(self.screen, RED, (95, 90, 400, 40), 3)
-            self.error_flash -= 1
-            
-            # Show error message
-            self.draw_text("入力ミス! 最初からやり直してください", self.medium_font, RED, SCREEN_WIDTH//2, 140, "center")
-            
-            # Show penalty countdown
-            if self.error_penalty > 0:
-                seconds_left = self.error_penalty / 60  # Convert frames to seconds
-                self.draw_text(f"入力再開まで: {seconds_left:.1f}秒", self.medium_font, RED, SCREEN_WIDTH//2, 170, "center")
-                self.error_penalty -= 1
-        
         # Display consumption boost
         boost_text = f"消化速度: {self.consumption_boost:.1f}倍"
         boost_color = RED if self.consumption_boost > 1.0 else BLACK
@@ -233,14 +188,59 @@ class OldRiceGame:
         progress_text = f"進捗: {self.current_target_index + 1}/{len(self.target_sequences)}"
         self.draw_text(progress_text, self.medium_font, BLACK, SCREEN_WIDTH - 20, 80, "right")
         
+        # Display the full target string with the current sequence highlighted - moved much lower
+        self.draw_text("目標:", self.medium_font, BLACK, 20, 120)
+        
+        # Display the full target string - moved down to avoid overlap
+        if self.full_target_string:
+            # Draw the full string in gray
+            self.draw_text(self.full_target_string, self.large_font, (100, 100, 100), 100, 120)
+            
+            # Draw the current target in blue (overlay on top of the gray text)
+            self.draw_text(self.target_sequence, self.large_font, BLUE, 100, 120)
+        
+        # Display current sequence - also moved down
+        self.draw_text("入力:", self.medium_font, BLACK, 20, 160)
+        
+        # Display current input with color coding
+        x_pos = 100
+        for i, char in enumerate(self.current_sequence):
+            if i < len(self.target_sequence) and char == self.target_sequence[i]:
+                color = GREEN
+            else:
+                color = RED
+            char_rect = self.draw_text(char, self.large_font, color, x_pos, 160)
+            x_pos = char_rect.right
+        
+        # Add visual indicator for next expected character
+        if len(self.current_sequence) < len(self.target_sequence) and self.error_penalty == 0:
+            next_char = self.target_sequence[len(self.current_sequence)]
+            # Make the hint more transparent
+            self.draw_text(next_char, self.large_font, (100, 100, 100, 128), x_pos, 160)  # Semi-transparent hint
+        
+        # Display error flash and penalty if active
+        if self.error_flash > 0:
+            # Draw a red rectangle around the input area
+            pygame.draw.rect(self.screen, RED, (95, 155, 400, 40), 3)
+            self.error_flash -= 1
+            
+            # Show error message
+            self.draw_text("入力ミス! 最初からやり直してください", self.medium_font, RED, SCREEN_WIDTH//2, 200, "center")
+            
+            # Show penalty countdown
+            if self.error_penalty > 0:
+                seconds_left = self.error_penalty / 60  # Convert frames to seconds
+                self.draw_text(f"入力再開まで: {seconds_left:.1f}秒", self.medium_font, RED, SCREEN_WIDTH//2, 230, "center")
+                self.error_penalty -= 1
+        
         # Display inventory count
-        self.draw_text(f"在庫セット数: {len(self.inventory)}", self.medium_font, BLACK, 20, 200)
+        self.draw_text(f"在庫セット数: {len(self.inventory)}", self.medium_font, BLACK, 20, 260)
         
         # Display inventory details
         if self.inventory:
-            self.draw_text("【在庫状況】", self.medium_font, BLACK, 20, 240)
+            self.draw_text("【在庫状況】", self.medium_font, BLACK, 20, 290)
             
-            y_pos = 280
+            y_pos = 330
             for i, (rice_set, remaining) in enumerate(self.inventory):
                 if y_pos > SCREEN_HEIGHT - 50:  # Prevent drawing outside screen
                     self.draw_text("...", self.medium_font, BLACK, 20, y_pos)
